@@ -10,8 +10,7 @@ import (
 	"strings"
 )
 
-var keepedAttrs = flag.String("attrs", "french,fr,europe,eur,eu,english,en,eng,uk,word,usa,us", "The attributes you want to keep.")
-var splittedKeepedAttrs []string
+var keepedAttrs = flag.String("keeped", "french,fr,europe,eur,eu,english,en,eng,uk,word,usa,us", "The attributes you want to keep.")
 var romDir = flag.String("rom_dir", ".", "The directory containing the roms file to process.")
 var dryRun = flag.Bool("dry_run", true, "Print what will moved.")
 
@@ -54,9 +53,9 @@ func contains(str string, list []string) bool {
 	return false
 }
 
-func findMatchingRom(roms []Rom) *Rom {
+func findMatchingRom(roms []Rom, attributes []string) *Rom {
 
-	for _, attr := range splittedKeepedAttrs {
+	for _, attr := range attributes {
 
 		// reverse walking, to have "USA" before "USA Rev1"
 		for i := len(roms) - 1; i >= 0; i-- {
@@ -98,8 +97,7 @@ func main() {
 	fmt.Println("KEEPED ATTRIBUTES: " + *keepedAttrs)
 
 	var roms = make(map[string][]Rom)
-	splittedKeepedAttrs = strings.Split(*keepedAttrs, ",")
-
+	
 	// we construct an hashmap indexed by the base rom name and we put each file info in it
 	for _, file := range dirFiles {
 
@@ -114,17 +112,19 @@ func main() {
 
 	}
 
+	splittedKeepedAttrs := strings.Split(*keepedAttrs, ",")
+
 	// for each files (struct) for a rom, try to find a good one
 	for game, files := range roms {
 
-		rom := findMatchingRom(files[0:])
+		rom := findMatchingRom(files[0:], splittedKeepedAttrs[0:])
 
 		if rom != nil {
 
-			fmt.Println("OK: " + game + " - found " + rom.filename)
+			fmt.Println("OK: " + game + " - found: " + rom.filename)
 
 			if *dryRun == false {
-				err := os.Rename(*romDir+"/"+rom.filename, movedDir+"/"+rom.filename)
+				err := os.Rename(*romDir + "/" + rom.filename, movedDir + "/" + rom.filename)
 				if err != nil {
 					log.Fatal(err)
 				}
