@@ -11,9 +11,10 @@ import (
 	"strings"
 )
 
-var keepedAttrs = flag.String("keeped", "french,fr,europe,eur,eu,english,en,eng,uk,word,usa,us", "The attributes you want to keep.")
+var keepedAttrs = flag.String("keeped", "french,france,fr,europe,eur,eu,english,en,eng,uk,word,usa,us", "The attributes you want to keep, in comma separated format.")
 var romDir = flag.String("rom_dir", ".", "The directory containing the roms file to process.")
-var dryRun = flag.Bool("dry_run", true, "Print what will moved.")
+var dryRun = flag.Bool("dry_run", true, "Print what will be moved.")
+var keepIfOnlyOne = flag.Bool("keep_one", false, "Move the file if it's the only one of its kind.")
 
 type Rom struct {
 	filename   string
@@ -25,8 +26,8 @@ func normalizeFilename(filename string) (string, string, error) {
 	cleaned = strings.Replace(cleaned, "]", ")", -1)
 
 	separatorPos := strings.Index(cleaned, "(")
-	if separatorPos == -1 {
-        return "", "", errors.New("math: square root of negative number")
+	if separatorPos == -1 || strings.LastIndex(cleaned, ")") <= separatorPos + 1 {
+        return "", "", errors.New("filename must contains both \"(\" & \")\", none found in " + cleaned)
     }
 
 	basename := strings.TrimSpace(cleaned[0:separatorPos])
@@ -36,9 +37,10 @@ func normalizeFilename(filename string) (string, string, error) {
 
 func extractAttributes(filename string) []string {
 
-	// anything that is a word/space/comma between parenthesis, looks like there is no negative lookahead in go atm.
-	re := regexp.MustCompile("\\((\\w+\\s?,?)+\\)")
-	matches := re.FindAllString(strings.ToLower(filename), -1)
+	// anything that is a word/space/comma between parenthesis
+	// it looks like there is no negative lookahead in go regex atm & even \(.*[^\)]\) doesn't match...
+	re := regexp.MustCompile("\\((\\w+,)*\\w+\\)")
+	matches := re.FindAllString(strings.ToLower(strings.Replace(filename, " ", "", -1)), -1)
 	var attributes []string
 
 	for _, group := range matches {
@@ -120,12 +122,16 @@ func main() {
 
 	}
 
-	splittedKeepedAttrs := strings.Split(*keepedAttrs, ",")
+	splittedKeepedAttrs := strings.Split(strings.Replace(*keepedAttrs, " ", "", -1), ",")
 
 	// for each files (struct) for a rom, try to find a good one
-	for game, files := range roms {
+	for game, romFiles := range roms {
 
-		rom := findMatchingRom(files[0:], splittedKeepedAttrs[0:])
+		rom := findMatchingRom(romFiles[0:], splittedKeepedAttrs[0:])
+
+		if *keepIfOnlyOne && len(romFiles) == 1 {
+			rom = &romFiles[0]
+		}
 
 		if rom != nil {
 

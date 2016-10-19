@@ -11,8 +11,11 @@ Move your selected roms from all the romset.
 -dry_run
     Print what will moved. (default true)
 
+-keep_one
+    Move the file if it's the only one of its kind.
+
 -keeped string
-    The attributes you want to keep. (default "french,fr,europe,eur,eu,english,en,eng,uk,word,usa,us")
+    The attributes you want to keep, in comma separated format. (default "french,france,fr,europe,eur,eu,english,en,eng,uk,word,usa,us")
 
 -rom_dir string
     The directory containing the roms file to process. (default ".")
