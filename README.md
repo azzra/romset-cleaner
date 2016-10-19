@@ -1,5 +1,6 @@
 [![Build Status](https://travis-ci.org/azzra/romset-cleaner.png)](https://travis-ci.org/azzra/romset-cleaner)
 [![Coverage Status](https://coveralls.io/repos/github/azzra/romset-cleaner/badge.svg?branch=coverage)](https://coveralls.io/github/azzra/romset-cleaner?branch=coverage)
+[![Code Climate](https://codeclimate.com/github/azzra/romset-cleaner/badges/gpa.svg)](https://codeclimate.com/github/azzra/romset-cleaner)
 
 # Romset Cleaner
 

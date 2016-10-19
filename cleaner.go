@@ -16,6 +16,7 @@ var romDir = flag.String("rom_dir", ".", "The directory containing the roms file
 var dryRun = flag.Bool("dry_run", true, "Print what will be moved.")
 var keepIfOnlyOne = flag.Bool("keep_one", false, "Move the file if it's the only one of its kind.")
 
+// Rom is a file wich has specific attribute(s) (zone/lang/..)
 type Rom struct {
 	filename   string
 	attributes []string // usa / fr / rev 1 / ...
