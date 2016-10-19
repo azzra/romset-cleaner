@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"flag"
 	"fmt"
 	"io/ioutil"
@@ -19,14 +20,18 @@ type Rom struct {
 	attributes []string // usa / fr / rev 1 / ...
 }
 
-func normalizeFilename(filename string) (string, string) {
+func normalizeFilename(filename string) (string, string, error) {
 	cleaned := strings.Replace(filename, "[", "(", -1)
 	cleaned = strings.Replace(cleaned, "]", ")", -1)
 
 	separatorPos := strings.Index(cleaned, "(")
+	if separatorPos == -1 {
+        return "", "", errors.New("math: square root of negative number")
+    }
+
 	basename := strings.TrimSpace(cleaned[0:separatorPos])
 
-	return cleaned, basename
+	return cleaned, basename, nil
 }
 
 func extractAttributes(filename string) []string {
@@ -106,7 +111,10 @@ func main() {
 		}
 
 		filename := file.Name()
-		cleanedFilename, baseFilename := normalizeFilename(filename)
+		cleanedFilename, baseFilename, err := normalizeFilename(filename)
+		if err != nil {
+			continue
+		}
 
 		roms[baseFilename] = append(roms[baseFilename], Rom{filename, extractAttributes(cleanedFilename)})
 

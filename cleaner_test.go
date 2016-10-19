@@ -11,8 +11,8 @@ import (
 
 func TestNormalizeFilename(t *testing.T) {
 
-	const in, expectedFilename, expectedBasename = "filename [EUR] (Rev 1)", "filename (EUR) (Rev 1)", "filename"
-	cleaned, basename := normalizeFilename(in)
+	const in, expectedFilename, expectedBasename = "filename [EUR] (Rev 1).tst", "filename (EUR) (Rev 1).tst", "filename"
+	cleaned, basename, _ := normalizeFilename(in)
 
 	if cleaned != expectedFilename {
 		t.Errorf("normalizeFilename(%v) = %v, want %v", in, cleaned, expectedFilename)
@@ -20,6 +20,18 @@ func TestNormalizeFilename(t *testing.T) {
 
 	if basename != expectedBasename {
 		t.Errorf("normalizeFilename(%v) = %v, want %v", in, basename, expectedBasename)
+	}
+
+}
+
+
+func TestNormalizeFilenameNil(t *testing.T) {
+
+	const in = "filename foobar"
+	_, _, err := normalizeFilename(in)
+
+	if err == nil {
+		t.Errorf("normalizeFilename(\"filename foobar\", %v) should return an error", in)
 	}
 
 }
@@ -87,7 +99,7 @@ func TestExtractAttributes(t *testing.T) {
 func setupMainFunc(t *testing.T) (string, []string) {
 
 	dir, err := ioutil.TempDir("", "example")
-	sampleRoms := []string{"FooBar (foo).tst", "FooBar (bar) (baz).tst"}
+	sampleRoms := []string{"FooBar (foo).tst", "FooBar (bar) (baz).tst", "FooBar Foo Edittion.tst"}
 
 	if err != nil {
 		t.Errorf("Cannot TempDir %v: %v", dir, err)

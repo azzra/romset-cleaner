@@ -5,6 +5,19 @@
 
 Move your selected roms from all the romset.
 
+## Usage
+
+```sh
+-dry_run
+    Print what will moved. (default true)
+
+-keeped string
+    The attributes you want to keep. (default "french,fr,europe,eur,eu,english,en,eng,uk,word,usa,us")
+
+-rom_dir string
+    The directory containing the roms file to process. (default ".")
+```
+
 
 ## Local Build and Test
 
