@@ -13,6 +13,7 @@ import (
 
 var keepedAttrs = flag.String("keeped", "french,france,fr,europe,eur,eu,english,en,eng,uk,word,usa,us", "The attributes you want to keep, in comma separated format.")
 var romDir = flag.String("rom_dir", ".", "The directory containing the roms file to process.")
+var destDir = flag.String("dest_dir", "", "The destination directory where the roms will be moved in, \"{rom_dir}/moved\" if empty.")
 var dryRun = flag.Bool("dry_run", true, "Print what will be moved.")
 var keepIfOnlyOne = flag.Bool("keep_one", false, "Move the file if it's the only one of its kind.")
 
@@ -80,7 +81,12 @@ func findMatchingRom(roms []Rom, attributes []string) *Rom {
 func main() {
 
 	flag.Parse()
-	var movedDir string
+	if *destDir == "" {
+		*destDir = strings.TrimRight(*romDir, "/") + "/moved"
+	}
+
+	fmt.Println("ROM DIR: " + *romDir + ", DEST DIR: " + *destDir)
+	fmt.Println("KEEPED ATTRIBUTES: " + *keepedAttrs)
 
 	dirFiles, err := ioutil.ReadDir(*romDir)
 	if err != nil {
@@ -90,19 +96,14 @@ func main() {
 	// prepare destination directory
 	if *dryRun == false {
 
-		movedDir = *romDir + "/moved"
-
-		if _, err := os.Stat(movedDir); os.IsNotExist(err) {
-			err := os.Mkdir(movedDir, 0750)
+		if _, err := os.Stat(*destDir); os.IsNotExist(err) {
+			err := os.Mkdir(*destDir, 0750)
 			if err != nil {
 				log.Fatal(err)
 			}
 		}
 
 	}
-
-	fmt.Println("ROM DIR: " + *romDir)
-	fmt.Println("KEEPED ATTRIBUTES: " + *keepedAttrs)
 
 	var roms = make(map[string][]Rom)
 	
@@ -139,7 +140,7 @@ func main() {
 			fmt.Println("OK: " + game + " - found: " + rom.filename)
 
 			if *dryRun == false {
-				err := os.Rename(*romDir + "/" + rom.filename, movedDir + "/" + rom.filename)
+				err := os.Rename(*romDir + "/" + rom.filename, *destDir + "/" + rom.filename)
 				if err != nil {
 					log.Fatal(err)
 				}

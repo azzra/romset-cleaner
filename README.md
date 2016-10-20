@@ -6,9 +6,30 @@
 
 Move your selected roms from all the romset.
 
+From
+```
+./
+	Double Dragon (UE).zip
+	Double Dragon (USA) (Beta 1).zip
+	Double Dragon (Prototype).zip
+```
+
+To
+```
+./
+	Double Dragon (USA) (Beta 1).zip
+	Double Dragon (Prototype).zip
+./moved
+	Double Dragon (UE).zip
+```
+
+
 ## Usage
 
 ```sh
+-dest_dir string
+    The destination directory where the roms will be moved in, "{rom_dir}/moved" if empty.
+
 -dry_run
     Print what will moved. (default true)
 

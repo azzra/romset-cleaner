@@ -3,7 +3,7 @@ package main
 import (
 	"flag"
 	"io/ioutil"
-	"os"	
+	"os"
 	"reflect"
 	"testing"
 )
@@ -108,21 +108,43 @@ func setupMainFunc(t *testing.T) (string, []string) {
 		t.Errorf("Cannot Mkdir %v: %v", dir, err)
 	}
 
-	err = os.Mkdir(dir + "/roms/barbaz", 0750)
+	err = os.Mkdir(dir + "/barbaz", 0750)
 	if err != nil {
 		t.Errorf("Cannot Mkdir %v: %v", dir, err)
 	}
 
 	for _, file := range sampleRoms {	
-		if err := ioutil.WriteFile(dir + "/roms/" + file, []byte("foofoo"), 0666); err != nil {
+		if err := ioutil.WriteFile(dir + "/" + file, []byte("foofoo"), 0666); err != nil {
 			t.Errorf("Cannot WriteFile %v: %v", dir, err)
 		}
 	}
 
 
-	flag.Set("rom_dir", dir + "/roms")
+	flag.Set("rom_dir", dir)
+	flag.Set("dest_dir", "")
+	flag.Set("keeped", "baz")
 
 	return dir, sampleRoms
+
+}
+
+
+func TestMainFuncDefault(t *testing.T) {
+
+	dir, sampleRoms := setupMainFunc(t)
+
+	main()
+
+	for _, file := range sampleRoms {	
+		expected := dir + "/" + file
+		if _, err := os.Stat(expected); os.IsNotExist(err) {
+			t.Errorf("File %v should exist", expected)
+		}
+	}
+
+	if expected := *romDir + "/moved" ; *destDir != expected {
+		t.Errorf("Folder %v should exist", expected)
+	}
 
 }
 
@@ -130,37 +152,34 @@ func TestMainFuncNotDryRun(t *testing.T) {
 
 	dir, sampleRoms := setupMainFunc(t)
 
-	flag.Set("keeped", "baz")
+
 	flag.Set("dry_run", "false")
 
 	main()
 
-	expected := dir + "/roms/moved/" + sampleRoms[1]
+	expected := dir + "/moved/" + sampleRoms[1]
 	if _, err := os.Stat(expected); os.IsNotExist(err) {
 		t.Errorf("File %v should exist", expected)
 	}
 
 
-	expected = dir + "/roms/" +  sampleRoms[0]
+	expected = dir + "/" +  sampleRoms[0]
 	if _, err := os.Stat(expected); os.IsNotExist(err) {
 		t.Errorf("File %v should exist", expected)
 	}
 
 }
 
-
 func TestMainFuncDryRun(t *testing.T) {
 
 	dir, sampleRoms := setupMainFunc(t)
 
-
-	flag.Set("keeped", "baz")
 	flag.Set("dry_run", "true")
 
 	main()
 
 	for _, file := range sampleRoms {	
-		expected := dir + "/roms/" + file
+		expected := dir + "/" + file
 		if _, err := os.Stat(expected); os.IsNotExist(err) {
 			t.Errorf("File %v should exist", expected)
 		}
@@ -179,7 +198,7 @@ func TestMainFuncNotMatched(t *testing.T) {
 	main()
 
 	for _, file := range sampleRoms {	
-		expected := dir + "/roms/" + file
+		expected := dir + "/" + file
 		if _, err := os.Stat(expected); os.IsNotExist(err) {
 			t.Errorf("File %v should exist", expected)
 		}
@@ -198,12 +217,12 @@ func TestMainFuncOnlyOneTrue(t *testing.T) {
 
 	main()
 
-	expected := dir + "/roms/moved/" + sampleRoms[3]
+	expected := dir + "/moved/" + sampleRoms[3]
 	if _, err := os.Stat(expected); os.IsNotExist(err) {
 		t.Errorf("File %v should exist", expected)
 	}
 
-	expected = dir + "/roms/moved/" +  sampleRoms[0]
+	expected = dir + "/moved/" +  sampleRoms[0]
 	if _, err := os.Stat(expected); os.IsNotExist(err) {
 		t.Errorf("File %v should exist", expected)
 	}
@@ -221,12 +240,12 @@ func TestMainFuncOnlyOneFalse(t *testing.T) {
 
 	main()
 
-	expected := dir + "/roms/" + sampleRoms[3]
+	expected := dir + "/" + sampleRoms[3]
 	if _, err := os.Stat(expected); os.IsNotExist(err) {
 		t.Errorf("File %v should exist", expected)
 	}
 
-	expected = dir + "/roms/moved/" +  sampleRoms[0]
+	expected = dir + "/moved/" +  sampleRoms[0]
 	if _, err := os.Stat(expected); os.IsNotExist(err) {
 		t.Errorf("File %v should exist", expected)
 	}
