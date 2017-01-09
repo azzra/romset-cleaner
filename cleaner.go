@@ -17,6 +17,11 @@ var destDir = flag.String("dest_dir", "", "The destination directory where the r
 var dryRun = flag.Bool("dry_run", true, "Print what will be moved.")
 var keepIfOnlyOne = flag.Bool("keep_one", false, "Move the file if it's the only one of its kind.")
 
+var ReadDir = ioutil.ReadDir
+var LogFatal = log.Fatal
+var Mkdir = os.Mkdir
+var Rename = os.Rename
+
 // Rom is a file wich has specific attribute(s) (zone/lang/..)
 type Rom struct {
 	filename   string
@@ -28,9 +33,9 @@ func normalizeFilename(filename string) (string, string, error) {
 	cleaned = strings.Replace(cleaned, "]", ")", -1)
 
 	separatorPos := strings.Index(cleaned, "(")
-	if separatorPos == -1 || strings.LastIndex(cleaned, ")") <= separatorPos + 1 {
-        return "", "", errors.New("filename must contains both \"(\" & \")\", none found in " + cleaned)
-    }
+	if separatorPos == -1 || strings.LastIndex(cleaned, ")") <= separatorPos+1 {
+		return "", "", errors.New("filename must contains both \"(\" & \")\", none found in " + cleaned)
+	}
 
 	basename := strings.TrimSpace(cleaned[0:separatorPos])
 
@@ -88,25 +93,25 @@ func main() {
 	fmt.Println("ROM DIR: " + *romDir + ", DEST DIR: " + *destDir)
 	fmt.Println("KEEPED ATTRIBUTES: " + *keepedAttrs)
 
-	dirFiles, err := ioutil.ReadDir(*romDir)
+	dirFiles, err := ReadDir(*romDir)
 	if err != nil {
-		log.Fatal(err)
+		LogFatal(err)
 	}
 
 	// prepare destination directory
 	if *dryRun == false {
 
 		if _, err := os.Stat(*destDir); os.IsNotExist(err) {
-			err := os.Mkdir(*destDir, 0750)
+			err := Mkdir(*destDir, 0750)
 			if err != nil {
-				log.Fatal(err)
+				LogFatal(err)
 			}
 		}
 
 	}
 
 	var roms = make(map[string][]Rom)
-	
+
 	// we construct an hashmap indexed by the base rom name and we put each file info in it
 	for _, file := range dirFiles {
 
@@ -140,9 +145,9 @@ func main() {
 			fmt.Println("OK: " + game + " - found: " + rom.filename)
 
 			if *dryRun == false {
-				err := os.Rename(*romDir + "/" + rom.filename, *destDir + "/" + rom.filename)
+				err := Rename(*romDir+"/"+rom.filename, *destDir+"/"+rom.filename)
 				if err != nil {
-					log.Fatal(err)
+					LogFatal(err)
 				}
 			}
 

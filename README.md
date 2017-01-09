@@ -53,4 +53,5 @@ You can use go get command:
 Testing:
 
     go test github.com/azzra/romset-cleaner/...
-
+    # or
+    go test -tags noasm -coverprofile=coverage.out  -v ./...  
