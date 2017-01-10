@@ -110,7 +110,7 @@ func TestContains(t *testing.T) {
 
 func TestFindMatchingRomMatched(t *testing.T) {
 
-	in := []Rom{Rom{"FooBar (foo)", []string{"foo"}}, Rom{"FooBar (bar)", []string{"bar"}}}
+	in := []Rom{{"FooBar (foo)", []string{"foo"}}, {"FooBar (bar)", []string{"bar"}}}
 
 	if rom := findMatchingRom(in, []string{"bar"}); rom != &in[1] {
 		t.Errorf("findMatchingRom(%v, [\"bar\"]) should be %v, %v instead", in, &in[1], rom)
@@ -124,7 +124,7 @@ func TestFindMatchingRomMatched(t *testing.T) {
 
 func TestFindMatchingRomNotMatched(t *testing.T) {
 
-	in := []Rom{Rom{"FooBar (foo)", []string{"foo"}}, Rom{"FooBar (bar)", []string{"bar"}}}
+	in := []Rom{{"FooBar (foo)", []string{"foo"}}, {"FooBar (bar)", []string{"bar"}}}
 
 	if rom := findMatchingRom(in, []string{"baz"}); rom != nil {
 		t.Errorf("findMatchingRom(%v, [\"baz\"]) should be %v, %v instead", in, nil, nil)

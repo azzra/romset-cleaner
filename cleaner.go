@@ -17,12 +17,19 @@ var destDir = flag.String("dest_dir", "", "The destination directory where the r
 var dryRun = flag.Bool("dry_run", true, "Print what will be moved.")
 var keepIfOnlyOne = flag.Bool("keep_one", false, "Move the file if it's the only one of its kind.")
 
+// ReadDir exported to be mocked
 var ReadDir = ioutil.ReadDir
+
+// LogFatal exported to be mocked
 var LogFatal = log.Fatal
+
+// Mkdir exported to be mocked
 var Mkdir = os.Mkdir
+
+// Rename exported to be mocked
 var Rename = os.Rename
 
-// Rom is a file wich has specific attribute(s) (zone/lang/..)
+// Rom is a file which has specific attribute(s) (zone/lang/..)
 type Rom struct {
 	filename   string
 	attributes []string // usa / fr / rev 1 / ...
